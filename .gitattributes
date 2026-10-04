@@ -1,0 +1,8 @@
+# Keep common text files normalized across platforms
+* text=auto
+
+# ML model artifacts can become large; use Git LFS if any file approaches GitHub's
+# normal file-size limits.
+*.pkl binary
+*.joblib binary
+*.onnx binary

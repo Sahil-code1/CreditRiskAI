@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: p137-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: p137_credit_risk
+      POSTGRES_USER: p137
+      POSTGRES_PASSWORD: p137pass
+    ports:
+    - "5433:5432"
+    volumes:
+      - p137_pgdata:/var/lib/postgresql/data
+
+volumes:
+  p137_pgdata:

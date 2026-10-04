@@ -1,0 +1,67 @@
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.json.key
+secrets/
+credentials/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+
+# Node / React
+node_modules/
+dist/
+build/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# IDE / OS
+.vscode/*
+!.vscode/extensions.json
+!.vscode/tasks.json
+.idea/
+*.code-workspace
+.DS_Store
+Thumbs.db
+
+# Local databases / ML tracking
+mlflow.db
+mlruns/
+artifacts/
+logs/
+*.log
+
+# Generated monitoring reports
+backend/evidently_drift_report.html
+backend/evidently_drift_summary.json
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Local model backup package (store model artifacts individually if appropriate)
+P137_model_package.zip
+
+# Local project data
+backend/p137_credit_risk.db
+backend/data/loan_train.csv
+
