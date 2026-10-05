@@ -1,41 +1,42 @@
-# CreditRisk AI
+# LoanGuard AI — Explainable Loan Default Prediction Platform
 
-> Explainable loan-default prediction platform built around XGBoost, SHAP, FastAPI, PostgreSQL, MLflow and EvidentlyAI.
+<p align="center">
+  <strong>End-to-end credit-risk ML platform for loan default prediction, explainability and portfolio analytics.</strong>
+</p>
 
-[![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-API-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![React](https://img.shields.io/badge/React-UI-61DAFB?logo=react&logoColor=111111)](https://react.dev/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-DB-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![XGBoost](https://img.shields.io/badge/XGBoost-ML-FF6F00)](https://xgboost.readthedocs.io/)
-[![MLflow](https://img.shields.io/badge/MLflow-MLOps-0194E2?logo=mlflow&logoColor=white)](https://mlflow.org/)
+<p align="center">
+  <a href="https://credit-risk-ai-snowy.vercel.app">Live Demo</a> ·
+  <a href="https://creditriskai-w7vb.onrender.com/health">API Health</a> ·
+  <a href="https://github.com/Sahil-code1/CreditRiskAI">GitHub Repository</a>
+</p>
+
+---
 
 ## Overview
 
-CreditRisk AI is a full-stack credit-risk prototype that predicts the probability of loan default and presents an interpretable risk assessment through a web dashboard.
+LoanGuard AI is an end-to-end machine-learning application built for the HCL P_137 **Loan Default Prediction** problem.
 
-The project was developed around the HCL P_137 **Loan Default Prediction** problem context and demonstrates an end-to-end workflow:
+It predicts the probability that a borrower will default, assigns a risk level, and provides feature-level explanations using SHAP. The platform combines a trained XGBoost model with a FastAPI inference service, PostgreSQL persistence, a React dashboard, MLflow experiment tracking and EvidentlyAI-based drift reporting.
 
-**historical loan data → data preparation → model training → explainability → REST inference API → PostgreSQL persistence → monitoring**
-
-### Important data note
-
-This repository uses a public Kaggle/LendingClub-style historical loan dataset for development and evaluation. It does **not** contain Bank Muscat production/customer data and should not be represented as a production banking system.
+The system is intended as a **decision-support tool**. Final lending decisions remain with the human underwriting process.
 
 ## Key Features
 
-- XGBoost-based loan default probability prediction
-- Model comparison with Logistic Regression and Random Forest
-- SHAP-based feature explanations
-- FastAPI inference and authentication APIs
-- JWT authentication with PBKDF2 password hashing
-- PostgreSQL-backed users and prediction history
-- React dashboard for risk analytics and prediction workflows
+- XGBoost loan-default prediction
+- SHAP-based individual prediction explanations
+- FastAPI REST backend
+- React + Vite + Tailwind frontend
+- PostgreSQL-backed historical loan data and prediction history
+- JWT authentication
+- Portfolio dashboard and analytics
+- Model-performance monitoring
+- EvidentlyAI drift reporting
 - MLflow experiment/model tracking
-- EvidentlyAI-based reference drift analysis
-- Dockerized PostgreSQL development environment
-- Prediction history and applicant detail views
+- Production deployment with Vercel + Render
 
-## Model Results
+## ML Results
+
+Evaluation on the held-out test split:
 
 | Model | ROC-AUC |
 |---|---:|
@@ -43,45 +44,62 @@ This repository uses a public Kaggle/LendingClub-style historical loan dataset f
 | Random Forest | 0.7040 |
 | **XGBoost** | **0.7157** |
 
-**Selected model:** XGBoost  
-**Evaluation:** hold-out test split  
-**Dataset:** 27,003 cleaned historical loan records  
-**Class balance:** 85.27% non-default / 14.73% default
+The deployed model is the XGBoost model.
 
-### Selected SHAP features
+### Important predictors identified with SHAP
 
-`int_rate`, `annual_inc`, `term`, `revol_util`, `funded_amnt_inv`, `inq_last_6mths`, `purpose`, `loan_amnt`, `funded_amnt`, `installment`
+- Interest rate
+- Annual income
+- Loan term
+- Revolving utilization
+- Investor-funded amount
+- Recent credit inquiries
+- Loan purpose
+- Loan amount
+- Funded amount
+- Installment
 
-## Architecture
+## Dataset
 
-```mermaid
-flowchart LR
-    U[Analyst / User] --> R[React + Vite UI]
-    R --> A[FastAPI REST API]
-    A --> AU[JWT Auth + PBKDF2]
-    A --> MS[XGBoost Model Service]
-    MS --> SH[SHAP Explainability]
-    A --> DB[(PostgreSQL)]
-    A --> MO[Monitoring]
-    MO --> EV[EvidentlyAI]
-    MS --> ML[MLflow Tracking]
-    DB --> AN[Analytics Dashboard]
+The project uses the Kaggle Loan Default Prediction dataset.
+
+- Original records: **27,003**
+- Final model features after encoding: **925**
+- Train split: **21,602**
+- Test split: **5,401**
+- Target: `loan_status`
+- Default class: **14.73%**
+- Non-default class: **85.27%**
+
+## System Architecture
+
+```text
+┌──────────────────────────────┐
+│        React Frontend        │
+│ Vite + Tailwind + Recharts   │
+└──────────────┬───────────────┘
+               │ HTTPS / REST
+               ▼
+┌──────────────────────────────┐
+│          FastAPI             │
+│ Auth • Prediction • Analytics│
+└───────┬──────────────┬───────┘
+        │              │
+        ▼              ▼
+┌──────────────┐  ┌─────────────────────┐
+│ PostgreSQL   │  │ XGBoost + SHAP      │
+│ Users/Loans/ │  │ Feature transform + │
+│ Predictions  │  │ Explainability      │
+└──────────────┘  └─────────────────────┘
+        │
+        ▼
+┌──────────────────────────────────────┐
+│ MLflow + EvidentlyAI                 │
+│ Experiment tracking + drift reporting│
+└──────────────────────────────────────┘
 ```
 
-See the detailed architecture notes in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
-
-## Main User Flow
-
-1. User creates an account or signs in.
-2. FastAPI validates credentials and returns a JWT.
-3. User enters borrower, credit and loan details.
-4. The API transforms the request into the model feature representation.
-5. XGBoost returns the default probability and risk level.
-6. SHAP generates the major contributing factors.
-7. Prediction + explanation are stored in PostgreSQL.
-8. History, analytics and monitoring pages read from the application database.
-
-## Tech Stack
+## Technology Stack
 
 ### Frontend
 - React.js
@@ -98,90 +116,167 @@ See the detailed architecture notes in [`docs/ARCHITECTURE.md`](docs/ARCHITECTUR
 - Uvicorn
 - SQLAlchemy
 - Pydantic
-- JWT
-- PBKDF2-SHA256 password hashing
+- JWT authentication
+- PostgreSQL
+- psycopg
+
+### Machine Learning
+- Pandas
+- NumPy
+- scikit-learn
 - XGBoost
 - SHAP
+- Joblib
 
-### Data / MLOps
-- PostgreSQL
+### MLOps / Monitoring
 - MLflow
 - EvidentlyAI
 - Docker
+- AWS ECS-ready architecture
 
-## Local Setup
+## Main Application Pages
 
-### 1. Clone
+- Login
+- Executive Dashboard
+- Risk Prediction
+- Prediction History
+- Analytics
+- Model Monitoring
+- Applicant Details
 
-```bash
-git clone https://github.com/<YOUR_USERNAME>/CreditRiskAI.git
-cd CreditRiskAI
-```
-
-### 2. Backend environment
-
-Use the project's existing backend virtual environment or create a new Python 3.11 environment.
-
-```powershell
-.\backend\.venv\Scripts\Activate.ps1
-```
-
-Install backend dependencies according to the committed requirements file.
-
-### 3. Environment variables
-
-Do not commit secrets. Copy the example environment files and replace placeholders locally.
+## Prediction Flow
 
 ```text
-frontend/.env.example
-backend/.env.example
+Applicant data
+      ↓
+Input validation
+      ↓
+Feature cleaning
+      ↓
+Categorical encoding
+      ↓
+925 model features
+      ↓
+XGBoost probability
+      ↓
+Risk classification
+      ↓
+SHAP explanation
+      ↓
+PostgreSQL prediction history
 ```
 
-### 4. Start PostgreSQL
+## API
 
-```powershell
-docker compose up -d
+### Health
+
+```http
+GET /health
 ```
 
-### 5. Start FastAPI
+Returns database and model-loading status.
 
-```powershell
-.\backend\.venv\Scripts\python.exe -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
+### Authentication
+
+```http
+POST /auth/login
+POST /auth/register
 ```
 
-### 6. Start React
+### Prediction
 
-```powershell
+```http
+POST /predict
+```
+
+Returns:
+
+- Default probability
+- Risk level
+- Confidence
+- Model version
+- SHAP contributions
+- Recommendation
+
+### Analytics
+
+```http
+GET /dashboard/stats
+GET /analytics
+GET /monitoring
+GET /predictions
+GET /applicants/{applicant_id}
+```
+
+## Running Locally
+
+### Backend
+
+```bash
+python -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
+```
+
+### Frontend
+
+```bash
+npm install
 npm run dev
 ```
 
-Open:
+### PostgreSQL
 
-- Frontend: `http://localhost:5173`
-- FastAPI: `http://127.0.0.1:8000`
-- FastAPI health: `http://127.0.0.1:8000/health`
+The project can run with PostgreSQL through Docker Compose.
 
-### 7. Start MLflow
-
-```powershell
-.\backend\.venv\Scripts\python.exe -m mlflow server --host 127.0.0.1 --port 5000
+```bash
+docker compose up -d
 ```
 
-Open `http://127.0.0.1:5000`.
+### Environment
 
-## API Overview
+Frontend:
 
-| Method | Endpoint | Purpose |
-|---|---|---|
-| POST | `/auth/login` | Authenticate user |
-| POST | `/auth/register` | Create user account |
-| GET | `/health` | Service/database/model health |
-| POST | `/predict` | Score a loan application |
-| GET | `/predictions` | Prediction history |
-| GET | `/dashboard/stats` | Dashboard metrics |
-| GET | `/analytics` | Filtered analytics |
-| GET | `/monitoring` | Model/monitoring metrics |
-| GET | `/applicants/{id}` | Applicant details |
+```env
+VITE_API_BASE_URL=http://127.0.0.1:8000
+VITE_USE_MOCK=false
+```
+
+Backend secrets and database configuration should be supplied through environment variables and must not be committed to Git.
+
+## Deployment
+
+### Frontend
+Vercel
+
+**Live:** https://credit-risk-ai-snowy.vercel.app
+
+### Backend
+Render
+
+**API:** https://creditriskai-w7vb.onrender.com
+
+**Health:** https://creditriskai-w7vb.onrender.com/health
+
+## Screenshots
+
+Add final production screenshots under:
+
+```text
+docs/screenshots/
+```
+
+Recommended screenshots:
+
+1. Executive dashboard
+2. Risk prediction result with SHAP explanation
+3. Prediction history
+4. Analytics
+5. Model monitoring
+
+Then reference them here, for example:
+
+```md
+![Executive Dashboard](docs/screenshots/dashboard.png)
+```
 
 ## Repository Structure
 
@@ -189,73 +284,45 @@ Open `http://127.0.0.1:5000`.
 CreditRiskAI/
 ├── backend/
 │   ├── app/
-│   ├── data/
 │   ├── models/
-│   ├── .env.example
+│   ├── data/
+│   ├── evidently_drift.py
 │   └── requirements.txt
-├── src/
-│   ├── components/
-│   ├── hooks/
-│   ├── layouts/
-│   ├── pages/
-│   ├── services/
-│   └── styles/
+├── frontend/
 ├── docs/
-│   ├── ARCHITECTURE.md
-│   └── images/
 ├── .github/
-│   └── workflows/
-├── docker-compose.yml
-├── frontend.env.example
-├── package.json
-└── README.md
+├── README.md
+├── SECURITY.md
+├── CONTRIBUTING.md
+├── LICENSE
+└── .gitignore
 ```
 
-## Screenshots
+## Engineering Notes
 
-Add 3–4 final screenshots under `docs/images/` and keep this section near the top of the repository homepage.
+- The trained XGBoost model and feature-column artifact are loaded by the backend at runtime.
+- Prediction preprocessing is aligned with the training feature space.
+- SHAP explanations are generated per prediction.
+- PostgreSQL stores users, historical loans and generated predictions.
+- The system separates model inference from the final human underwriting decision.
+- Production secrets are expected to be supplied through deployment environment variables.
 
-Suggested set:
+## What This Project Demonstrates
 
-- `dashboard.png`
-- `prediction.png`
-- `monitoring.png`
-- `login.png`
+**Machine Learning:** feature engineering, imbalanced classification, model comparison, XGBoost evaluation and explainability.
 
-## Monitoring and MLOps
+**Backend Engineering:** REST APIs, authentication, validation, persistence and model serving.
 
-The project includes two different monitoring concepts:
+**Frontend Engineering:** responsive dashboard, API integration, charts and prediction workflows.
 
-- **Model evaluation:** hold-out ROC-AUC, precision, recall and F1.
-- **Data drift:** EvidentlyAI reference comparison.
-
-The current drift report is a baseline/reference analysis. Meaningful production drift requires a growing stream of live prediction data.
-
-## Limitations
-
-- Current XGBoost hold-out ROC-AUC is **0.7157**, so the project should not claim an 85% AUC production target has been achieved.
-- The data is historical/public rather than Bank Muscat production data.
-- Current deployment is local-development oriented; cloud deployment is a future production step.
-- Monitoring currently starts from a reference baseline and becomes more representative as live prediction history grows.
-
-## Roadmap
-
-- Improve model performance through feature engineering, imbalance handling and tuned hyperparameters.
-- Add automated model retraining/evaluation pipelines.
-- Add production cloud deployment.
-- Add CI/CD and stronger automated test coverage.
-- Replace local tracking configuration with a shared MLflow backend for team deployment.
-
-## Portfolio Positioning
-
-This project demonstrates a practical combination of:
-
-**Machine Learning + Backend Engineering + Database Engineering + Explainable AI + MLOps + Full-Stack Development**
-
-It is intended as a portfolio/academic implementation rather than a production banking decision engine.
+**MLOps:** model packaging, experiment tracking, drift reporting and cloud deployment.
 
 ## Author
 
-**Sahil Ali**  
-B.Tech CSE
+**Sahil Ali**
 
+B.Tech Computer Science Engineering
+
+## License
+
+MIT License
