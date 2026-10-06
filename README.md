@@ -326,3 +326,7 @@ B.Tech Computer Science Engineering
 ## License
 
 MIT License
+
+## Live Demo
+
+Try the deployed application: https://credit-risk-ai-snowy.vercel.app
