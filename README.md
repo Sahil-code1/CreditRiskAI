@@ -319,7 +319,7 @@ CreditRiskAI/
 
 ## Author
 
-**Sahil Ali**
+**Sahil**
 
 B.Tech Computer Science Engineering
 
